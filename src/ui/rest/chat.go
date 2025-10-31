@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"net/url"
+
 	domainChat "github.com/aldinokemal/go-whatsapp-web-multidevice/domains/chat"
 	"github.com/aldinokemal/go-whatsapp-web-multidevice/pkg/utils"
 	"github.com/gofiber/fiber/v2"
@@ -46,6 +48,9 @@ func (controller *Chat) GetChatMessages(c *fiber.Ctx) error {
 
 	// Parse path parameter
 	request.ChatJID = c.Params("chat_jid")
+	if decoded, err := url.PathUnescape(request.ChatJID); err == nil {
+		request.ChatJID = decoded
+	}
 
 	// Parse query parameters
 	request.Limit = c.QueryInt("limit", 50)

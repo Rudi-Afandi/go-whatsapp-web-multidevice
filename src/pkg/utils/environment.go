@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -95,5 +96,18 @@ func LoadConfig(path string, name ...string) (err error) {
 	if err != nil {
 		return
 	}
+
+	// Ensure values from the config file are available for other processes (e.g. Next.js)
+	for _, key := range viper.AllKeys() {
+		value := viper.Get(key)
+		if value == nil {
+			continue
+		}
+
+		if _, exists := os.LookupEnv(key); !exists {
+			_ = os.Setenv(key, fmt.Sprint(value))
+		}
+	}
+
 	return nil
 }

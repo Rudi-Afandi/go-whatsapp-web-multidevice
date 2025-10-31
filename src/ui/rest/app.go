@@ -22,6 +22,7 @@ func InitRestApp(app fiber.Router, service domainApp.IAppUsecase) App {
 	app.Get("/app/reconnect", rest.Reconnect)
 	app.Get("/app/devices", rest.Devices)
 	app.Get("/app/status", rest.ConnectionStatus)
+	app.Get("/app/auth-info", rest.GetAuthInfo)
 
 	return App{Service: service}
 }
@@ -102,6 +103,23 @@ func (handler *App) ConnectionStatus(c *fiber.Ctx) error {
 			"is_connected": isConnected,
 			"is_logged_in": isLoggedIn,
 			"device_id":    deviceID,
+		},
+	})
+}
+
+func (handler *App) GetAuthInfo(c *fiber.Ctx) error {
+	// Check if basic auth is configured
+	hasAuth := len(config.AppBasicAuthCredential) > 0
+
+	// For security, don't return actual credentials, just indicate auth method
+	return c.JSON(utils.ResponseData{
+		Status:  200,
+		Code:    "SUCCESS",
+		Message: "Auth info retrieved",
+		Results: map[string]any{
+			"has_basic_auth": hasAuth,
+			"auth_method":    "basic_auth",
+			"frontend_url":   fmt.Sprintf("http://localhost:3000"), // Next.js default port
 		},
 	})
 }
